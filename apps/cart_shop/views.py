@@ -1,26 +1,16 @@
 from django.views import View
 from .models import CartItemShop, Cart, Product, WishList
 from django.shortcuts import render, get_object_or_404, redirect
-
-
+from apps.cart.models import Cart
 
 
 class ViewWishlist(View):
     def get(self, request):
         items_carts = WishList.objects.filter(cart__user=request.user)
         data = list(items_carts)
-        total_price_no_discount = sum(item.product.price * item.quantity
-                                      for item in data)
-        total_discount = sum(item.product.price * item.product.discount * item.quantity
-                             for item in data if item.product.discount is not None) / 100
-        total_sum = total_price_no_discount - total_discount
         context = {'items_carts': data,
-                   'total_price_no_discount': total_price_no_discount,
-                   'total_discount': total_discount,
-                   'total_sum': total_sum,
                    }
         return render(request, 'cart_shop/wishlist.html', context)
-
 
 class ViewCart(View):
     def get(self, request):
