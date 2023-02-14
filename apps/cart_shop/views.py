@@ -2,6 +2,7 @@ from django.views import View
 from .models import CartItemShop, Cart, Product, WishList
 from django.shortcuts import render, get_object_or_404, redirect
 from apps.cart.models import Cart
+from decimal import Decimal
 
 
 class ViewWishlist(View):
@@ -18,8 +19,13 @@ class ViewCart(View):
         data = list(cart_items)
         total_price_no_discount = sum(item.product.price * item.quantity
                                       for item in data)
+        if not total_price_no_discount:
+            total_price_no_discount = Decimal("0.00")
+
         total_discount = sum(item.product.price * item.product.discount * item.quantity
                              for item in data if item.product.discount is not None) / 100
+        if not total_discount:
+            total_discount = Decimal("0.00")
         total_sum = total_price_no_discount - total_discount
         context = {'cart_items': data,
                    'total_price_no_discount': total_price_no_discount,
